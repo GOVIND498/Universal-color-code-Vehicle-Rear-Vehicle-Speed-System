@@ -1,0 +1,71 @@
+#define RED_LED 4
+#define YELLOW_LED 5
+#define GREEN_LED 6
+
+int prevSpeed = 0;
+int currSpeed = 0;
+int diff = 0;
+
+void setup() {
+  pinMode(RED_LED, OUTPUT);
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+
+  Serial.begin(9600);
+
+  prevSpeed = random(60, 100);  // Starting speed
+  Serial.println("System Initialized...");
+  delay(1000);
+}
+
+void loop() {
+  // Simulate new speed by fluctuating up or down randomly
+  int change = random(-20, 20);  // Speed can go up or down slightly
+  currSpeed = prevSpeed + change;
+
+  // Limit speed between 30 and 120 kmph
+  if (currSpeed < 30) currSpeed = 30;
+  if (currSpeed > 120) currSpeed = 120;
+
+  diff = prevSpeed - currSpeed;
+  if (diff < 0) diff = 0;  // Only consider drop, not acceleration
+
+  // Debug Print
+  Serial.println("====================================");
+  Serial.print("Previous Speed: ");
+  Serial.print(prevSpeed);
+  Serial.println(" kmph");
+
+  Serial.print("Current Speed : ");
+  Serial.print(currSpeed);
+  Serial.println(" kmph");
+
+  Serial.print("Speed Drop    : ");
+  Serial.print(diff);
+  Serial.println(" kmph");
+
+  // LED Zone Logic
+  if (diff <= 10) {
+    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(YELLOW_LED, LOW);
+    digitalWrite(RED_LED, LOW);
+    Serial.println("Status        : SAFE (Green LED ON)");
+  } 
+  else if (diff > 10 && diff <= 30) {
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(YELLOW_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
+    Serial.println("Status        : MODERATE (Yellow LED ON)");
+  } 
+  else {
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(YELLOW_LED, LOW);
+    digitalWrite(RED_LED, HIGH);
+    Serial.println("Status        : EMERGENCY (Red LED ON)");
+  }
+
+  Serial.println("====================================\n");
+
+  prevSpeed = currSpeed;
+  delay(2000);  // Wait 2 seconds
+}
